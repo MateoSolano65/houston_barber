@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: nest-app
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: development
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3000:3000"
+      - "5555:5555" # Prisma Studio
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    command: npm run start:dev
+    networks:
+      - nest-network
+
+  postgres:
+    container_name: postgres
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nest_dev
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - nest-network
+
+networks:
+  nest-network:
+
+volumes:
+  postgres-data:
