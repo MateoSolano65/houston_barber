@@ -1,24 +1,12 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-  UseFilters,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { PrismaExceptionFilter } from '../common/exceptions/prisma-exception.filter';
 
 @ApiTags('users')
 @Controller('users')
-@UseFilters(PrismaExceptionFilter)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

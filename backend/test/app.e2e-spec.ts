@@ -2,11 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { PrismaService } from '../src/prisma/prisma.service';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
-  let prismaService: PrismaService;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -14,7 +12,7 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    
+
     // Apply same middleware as in main.ts
     app.useGlobalPipes(
       new ValidationPipe({
@@ -23,24 +21,18 @@ describe('AppController (e2e)', () => {
         transform: true,
       }),
     );
-    
+
     await app.init();
-    
-    prismaService = app.get<PrismaService>(PrismaService);
-    
+
     // Clean database before tests
-    await prismaService.cleanDatabase();
   });
 
   afterAll(async () => {
-    await prismaService.$disconnect();
     await app.close();
   });
 
   it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/api')
-      .expect(404); // Default route not defined
+    return request(app.getHttpServer()).get('/api').expect(404); // Default route not defined
   });
 
   describe('/users', () => {
