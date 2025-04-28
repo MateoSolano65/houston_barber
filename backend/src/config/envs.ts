@@ -17,7 +17,13 @@ interface EnvVars {
   NODE_ENV: ExecModes;
   DB_URL: string;
 
+  API_PREFIX: string;
+  APP_NAME: string;
+
   URLS_FRONTEND: string[];
+
+  JWT_SECRET: string;
+  JWT_EXPIRES_IN: string;
 }
 
 const envSchema = joi
@@ -30,6 +36,12 @@ const envSchema = joi
 
     DB_URL: joi.string().required(),
     URLS_FRONTEND: joi.array().items(joi.string().uri()).required(),
+
+    API_PREFIX: joi.string().default('api'),
+    APP_NAME: joi.string().default('Houston Barber App'),
+
+    JWT_SECRET: joi.string().required(),
+    JWT_EXPIRES_IN: joi.string().default('1h'),
   })
   .unknown(true);
 
@@ -51,5 +63,11 @@ export const envs = {
 
   dbUrl: envVars.DB_URL,
 
+  apiPrefix: envVars.API_PREFIX,
+  appName: envVars.APP_NAME,
+
   urlsFrontend: envVars.URLS_FRONTEND,
+
+  jwtSecret: envVars.JWT_SECRET,
+  jwtExpiresIn: envVars.JWT_EXPIRES_IN,
 };
