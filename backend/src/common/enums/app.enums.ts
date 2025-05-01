@@ -3,3 +3,9 @@ export enum ExecModes {
   DEV = 'development',
   LOCAL = 'local',
 }
+
+export enum UserRoles {
+  ADMIN = 'Admin',
+  EMPLOYEE = 'Empleado',
+  CLIENT = 'Cliente',
+}
