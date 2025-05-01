@@ -11,12 +11,14 @@ import { ParseMongoIdPipe } from '@common/pipes';
 import { HttpExceptionFilter } from '@common/exceptions';
 
 import { UsersModule } from '@modules/users/users.module';
+import { EmployeesModule } from '@modules/employees/employees.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({ useClass: MongooseConfigService }),
     UsersModule,
+    EmployeesModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
