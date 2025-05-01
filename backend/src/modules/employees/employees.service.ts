@@ -56,12 +56,24 @@ export class EmployeesService {
         throw new BadRequestException('Invalid MongoDB ID');
       }
 
-      const employee = await this.employeeRepository.findOne({ _id: id }, { path: 'userId' });
+      // Obtener el empleado por ID sin poblar inicialmente
+      const employee = await this.employeeRepository.findOneById(id);
+      
       if (!employee) {
         throw new NotFoundException(`Employee with ID ${id} not found`);
       }
 
-      return employee;
+      // Poblar manualmente el campo userId con una consulta separada
+      const populatedEmployee = employee.toObject();
+      
+      // Obtener los datos del usuario asociado
+      const user = await this.usersService.findOne(employee.userId.toString());
+      
+      // Reemplazar el userId con el objeto de usuario completo
+      populatedEmployee.user = user;
+
+      // Devolver el objeto completo con usuario poblado
+      return populatedEmployee;
     } catch (error) {
       if (error instanceof BadRequestException || error instanceof NotFoundException) {
         throw error;
