@@ -1,0 +1,144 @@
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Types } from 'mongoose';
+import { EmployeeRepository } from './repositories/employee.repository';
+import { UsersService } from '../users/users.service';
+import { CreateEmployeeDto } from './dto/create-employee.dto';
+import { UpdateEmployeeDto } from './dto/update-employee.dto';
+import { PaginationDto } from '@common/dto/pagination.dto';
+
+@Injectable()
+export class EmployeesService {
+  constructor(
+    private readonly employeeRepository: EmployeeRepository,
+    private readonly usersService: UsersService,
+  ) {}
+
+  async create(createEmployeeDto: CreateEmployeeDto) {
+    try {
+      // Create the user first
+      const user = await this.usersService.create(createEmployeeDto.user);
+
+      // Create the employee associated with the user
+      const employee = await this.employeeRepository.create({
+        userId: user._id,
+        specialty: createEmployeeDto.specialty,
+        phone: createEmployeeDto.phone,
+        schedule: createEmployeeDto.schedule || {},
+      });
+
+      return {
+        ...employee.toObject(),
+        user,
+      };
+    } catch (error) {
+      throw new BadRequestException(`Error creating employee: ${error.message}`);
+    }
+  }
+
+  async findAll(paginationDto: PaginationDto) {
+    const options = {
+      populate: { path: 'userId' },
+    };
+    return this.employeeRepository.findPaginate(paginationDto, options);
+  }
+
+  async findOne(id: string) {
+    try {
+      const isValidId = Types.ObjectId.isValid(id);
+      if (!isValidId) {
+        throw new BadRequestException('Invalid MongoDB ID');
+      }
+
+      const employee = await this.employeeRepository.findOne({ _id: id }, { path: 'userId' });
+      if (!employee) {
+        throw new NotFoundException(`Employee with ID ${id} not found`);
+      }
+
+      return employee;
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new BadRequestException(`Error retrieving employee: ${error.message}`);
+    }
+  }
+
+  async findByUserId(userId: string) {
+    try {
+      const isValidId = Types.ObjectId.isValid(userId);
+      if (!isValidId) {
+        throw new BadRequestException('Invalid MongoDB ID');
+      }
+
+      const employee = await this.employeeRepository.findOne({ userId }, { path: 'userId' });
+      if (!employee) {
+        throw new NotFoundException(`Employee with user ID ${userId} not found`);
+      }
+
+      return employee;
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new BadRequestException(`Error retrieving employee: ${error.message}`);
+    }
+  }
+
+  async update(id: string, updateEmployeeDto: UpdateEmployeeDto) {
+    try {
+      const isValidId = Types.ObjectId.isValid(id);
+      if (!isValidId) {
+        throw new BadRequestException('Invalid MongoDB ID');
+      }
+
+      // Check if employee exists
+      const employee = await this.employeeRepository.findOne({ _id: id });
+      if (!employee) {
+        throw new NotFoundException(`Employee with ID ${id} not found`);
+      }
+
+      // Update user if needed
+      if (updateEmployeeDto.user) {
+        await this.usersService.update(employee.userId.toString(), updateEmployeeDto.user);
+      }
+
+      // Update employee fields
+      const { user, ...employeeData } = updateEmployeeDto;
+      if (Object.keys(employeeData).length > 0) {
+        await this.employeeRepository.findOneAndUpdate({ _id: id }, employeeData);
+      }
+
+      return { message: 'Employee updated successfully' };
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new BadRequestException(`Error updating employee: ${error.message}`);
+    }
+  }
+
+  async remove(id: string) {
+    try {
+      const isValidId = Types.ObjectId.isValid(id);
+      if (!isValidId) {
+        throw new BadRequestException('Invalid MongoDB ID');
+      }
+
+      // Check if employee exists
+      const employee = await this.employeeRepository.findOne({ _id: id });
+      if (!employee) {
+        throw new NotFoundException(`Employee with ID ${id} not found`);
+      }
+
+      // Delete user (this will cascade delete the employee)
+      await this.usersService.remove(employee.userId.toString());
+
+      return { message: 'Employee deleted successfully' };
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new BadRequestException(`Error deleting employee: ${error.message}`);
+    }
+  }
+}
