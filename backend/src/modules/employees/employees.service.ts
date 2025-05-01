@@ -70,26 +70,26 @@ export class EmployeesService {
     }
   }
 
-  async findByUserId(userId: string) {
-    try {
-      const isValidId = Types.ObjectId.isValid(userId);
-      if (!isValidId) {
-        throw new BadRequestException('Invalid MongoDB ID');
-      }
+  // async findByUserId(userId: string) {
+  //   try {
+  //     const isValidId = Types.ObjectId.isValid(userId);
+  //     if (!isValidId) {
+  //       throw new BadRequestException('Invalid MongoDB ID');
+  //     }
 
-      const employee = await this.employeeRepository.findOne({ userId }, { path: 'userId' });
-      if (!employee) {
-        throw new NotFoundException(`Employee with user ID ${userId} not found`);
-      }
+  //     const employee = await this.employeeRepository.findOne({ userId }, { path: 'userId' });
+  //     if (!employee) {
+  //       throw new NotFoundException(`Employee with user ID ${userId} not found`);
+  //     }
 
-      return employee;
-    } catch (error) {
-      if (error instanceof BadRequestException || error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new BadRequestException(`Error retrieving employee: ${error.message}`);
-    }
-  }
+  //     return employee;
+  //   } catch (error) {
+  //     if (error instanceof BadRequestException || error instanceof NotFoundException) {
+  //       throw error;
+  //     }
+  //     throw new BadRequestException(`Error retrieving employee: ${error.message}`);
+  //   }
+  // }
 
   async update(id: string, updateEmployeeDto: UpdateEmployeeDto) {
     try {

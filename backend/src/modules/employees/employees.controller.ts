@@ -35,13 +35,13 @@ export class EmployeesController {
     return this.employeesService.findOne(id);
   }
 
-  @Get('user/:userId')
-  @ApiOperation({ summary: 'Get an employee by user ID' })
-  @ApiResponse({ status: 200, description: 'Employee found' })
-  @ApiResponse({ status: 404, description: 'Employee not found' })
-  findByUserId(@Param('userId', ParseMongoIdPipe) userId: string) {
-    return this.employeesService.findByUserId(userId);
-  }
+  // @Get('user/:userId')
+  // @ApiOperation({ summary: 'Get an employee by user ID' })
+  // @ApiResponse({ status: 200, description: 'Employee found' })
+  // @ApiResponse({ status: 404, description: 'Employee not found' })
+  // findByUserId(@Param('userId', ParseMongoIdPipe) userId: string) {
+  //   return this.employeesService.findByUserId(userId);
+  // }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update an employee' })
