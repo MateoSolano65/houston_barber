@@ -5,6 +5,7 @@ import { UsersService } from '../users/users.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { PaginationDto } from '@common/dto/pagination.dto';
+import { UserRoles } from '@common/enums/app.enums';
 
 @Injectable()
 export class AdminsService {
@@ -15,8 +16,14 @@ export class AdminsService {
 
   async create(createAdminDto: CreateAdminDto) {
     try {
-      // Create the user first
-      const user = await this.usersService.create(createAdminDto.user);
+      // Asegurarnos de que el rol sea Admin
+      const adminUserData = {
+        ...createAdminDto.user,
+        role: UserRoles.ADMIN,
+      };
+
+      // Create the user first with the forced Admin role
+      const user = await this.usersService.create(adminUserData);
 
       // Create the admin associated with the user
       const admin = await this.adminRepository.create({
@@ -134,8 +141,14 @@ export class AdminsService {
         throw new NotFoundException(`Admin with ID ${id} not found`);
       }
 
-      // Delete user (this will cascade delete the admin)
-      await this.usersService.remove(admin.userId.toString());
+      // Guardar el ID del usuario asociado
+      const userId = admin.userId.toString();
+
+      // Primero eliminar el documento del administrador
+      await this.adminRepository.findOneAndDelete({ _id: id });
+
+      // Luego eliminar el usuario asociado
+      await this.usersService.remove(userId);
 
       return { message: 'Admin deleted successfully' };
     } catch (error) {
