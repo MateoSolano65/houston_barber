@@ -13,9 +13,6 @@ export class Employee extends Document {
   @Prop({ required: true })
   specialty: string;
 
-  @Prop()
-  phone: string;
-
   @Prop({ type: Object })
   schedule: Record<string, any>;
 }

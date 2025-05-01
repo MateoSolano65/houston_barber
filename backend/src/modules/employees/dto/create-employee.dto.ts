@@ -14,17 +14,14 @@ export class CreateEmployeeDto {
     name: '',
     password: '',
     role: UserRoles.EMPLOYEE,
+    phone: '',
+    address: undefined,
   };
 
-  @ApiProperty({ example: 'Corte de cabello' })
+  @ApiProperty({ example: 'Barbero' })
   @IsString()
   @IsNotEmpty()
   specialty: string;
-
-  @ApiProperty({ example: '+573001234567' })
-  @IsString()
-  @IsOptional()
-  phone?: string;
 
   @ApiProperty({ example: { monday: '8:00-17:00', tuesday: '8:00-17:00' } })
   @IsOptional()

@@ -25,6 +25,14 @@ export class UsersService {
         throw new BadRequestException(`User with email ${createUserDto.email} already exists`);
       }
 
+      // Check if user with phone exists
+      if (createUserDto.phone) {
+        const phoneExists = await this.userRepository.findOne({ phone: createUserDto.phone });
+        if (phoneExists) {
+          throw new BadRequestException(`User with phone ${createUserDto.phone} already exists`);
+        }
+      }
+
       const { password, ...userData } = createUserDto;
 
       // Create new user with hashed password
@@ -81,6 +89,22 @@ export class UsersService {
       const user = await this.userRepository.findOne({ _id: id });
       if (!user) {
         throw new NotFoundException(`User with ID ${id} not found`);
+      }
+
+      // Check if updating to an email that already exists
+      if (updateUserDto.email && updateUserDto.email !== user.email) {
+        const emailExists = await this.userRepository.findOne({ email: updateUserDto.email });
+        if (emailExists) {
+          throw new BadRequestException(`User with email ${updateUserDto.email} already exists`);
+        }
+      }
+
+      // Check if updating to a phone that already exists
+      if (updateUserDto.phone && updateUserDto.phone !== user.phone) {
+        const phoneExists = await this.userRepository.findOne({ phone: updateUserDto.phone });
+        if (phoneExists) {
+          throw new BadRequestException(`User with phone ${updateUserDto.phone} already exists`);
+        }
       }
 
       // If updating password, hash it

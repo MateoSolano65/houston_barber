@@ -5,6 +5,7 @@ import { UsersService } from '../users/users.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { PaginationDto } from '@common/dto/pagination.dto';
+import { UserRoles } from '@common/enums/app.enums';
 
 @Injectable()
 export class EmployeesService {
@@ -15,14 +16,20 @@ export class EmployeesService {
 
   async create(createEmployeeDto: CreateEmployeeDto) {
     try {
+      // Asegurar que el rol sea EMPLOYEE
+      const userData = {
+        ...createEmployeeDto.user,
+        role: UserRoles.EMPLOYEE, // Forzar el rol a EMPLOYEE independientemente del valor recibido
+      };
+
       // Create the user first
-      const user = await this.usersService.create(createEmployeeDto.user);
+      const user = await this.usersService.create(userData);
 
       // Create the employee associated with the user
       const employee = await this.employeeRepository.create({
         userId: user._id,
         specialty: createEmployeeDto.specialty,
-        phone: createEmployeeDto.phone,
+        phone: createEmployeeDto.user.phone,
         schedule: createEmployeeDto.schedule || {},
       });
 
@@ -99,7 +106,12 @@ export class EmployeesService {
 
       // Update user if needed
       if (updateEmployeeDto.user) {
-        await this.usersService.update(employee.userId.toString(), updateEmployeeDto.user);
+        // Asegurar que el rol sea EMPLOYEE incluso al actualizar
+        const userData = {
+          ...updateEmployeeDto.user,
+          role: UserRoles.EMPLOYEE,
+        };
+        await this.usersService.update(employee.userId.toString(), userData);
       }
 
       // Update employee fields
