@@ -37,28 +37,26 @@ export class AdminsService {
     const options = {
       populate: { path: 'userId' },
     };
-    return this.adminRepository.findPaginate(paginationDto, options);
-  }
+    const paginatedResult = await this.adminRepository.findPaginate(paginationDto, options);
 
-  async findOne(id: string) {
-    try {
-      const isValidId = Types.ObjectId.isValid(id);
-      if (!isValidId) {
-        throw new BadRequestException('Invalid MongoDB ID');
-      }
+    // Transform response to rename 'docs' to 'admins'
+    // and transform 'userId' to 'user'
+    const { docs, ...paginationInfo } = paginatedResult;
 
-      const admin = await this.adminRepository.findOne({ _id: id }, { path: 'userId' });
-      if (!admin) {
-        throw new NotFoundException(`Admin with ID ${id} not found`);
-      }
+    const transformedAdmins = docs.map(admin => {
+      const adminObj = admin.toObject ? admin.toObject() : admin;
+      const { userId, ...rest } = adminObj;
 
-      return admin;
-    } catch (error) {
-      if (error instanceof BadRequestException || error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new BadRequestException(`Error retrieving admin: ${error.message}`);
-    }
+      return {
+        ...rest,
+        user: userId,
+      };
+    });
+
+    return {
+      admins: transformedAdmins,
+      ...paginationInfo,
+    };
   }
 
   async findByUserId(userId: string) {
@@ -68,12 +66,26 @@ export class AdminsService {
         throw new BadRequestException('Invalid MongoDB ID');
       }
 
-      const admin = await this.adminRepository.findOne({ userId }, { path: 'userId' });
+      // Convert the userId to ObjectId for the search
+      const objectId = new Types.ObjectId(userId);
+
+      // First, we search for the admin without populate
+      const admin = await this.adminRepository.findOne({ userId: objectId });
+
       if (!admin) {
         throw new NotFoundException(`Admin with user ID ${userId} not found`);
       }
 
-      return admin;
+      const user = await this.usersService.findOne(userId);
+
+      // Transform the admin object to remove userId and include user
+      const adminObj = admin.toObject();
+      const { userId: _, ...rest } = adminObj;
+
+      return {
+        ...rest,
+        user,
+      };
     } catch (error) {
       if (error instanceof BadRequestException || error instanceof NotFoundException) {
         throw error;

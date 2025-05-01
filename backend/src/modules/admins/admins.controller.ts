@@ -27,20 +27,13 @@ export class AdminsController {
     return this.adminsService.findAll(paginationDto);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get an administrator by ID' })
-  @ApiResponse({ status: 200, description: 'Administrator found' })
-  @ApiResponse({ status: 404, description: 'Administrator not found' })
-  findOne(@Param('id', ParseMongoIdPipe) id: string) {
-    return this.adminsService.findOne(id);
-  }
-
   @Get('user/:userId')
   @ApiOperation({ summary: 'Get an administrator by user ID' })
   @ApiResponse({ status: 200, description: 'Administrator found' })
   @ApiResponse({ status: 404, description: 'Administrator not found' })
-  findByUserId(@Param('userId', ParseMongoIdPipe) userId: string) {
-    return this.adminsService.findByUserId(userId);
+  async findByUserId(@Param('userId', ParseMongoIdPipe) userId: string) {
+    const admin = await this.adminsService.findByUserId(userId);
+    return { admin };
   }
 
   @Patch(':id')
