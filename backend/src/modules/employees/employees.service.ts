@@ -157,6 +157,12 @@ export class EmployeesService {
       // Delete user (this will cascade delete the employee)
       await this.usersService.remove(employee.userId.toString());
 
+      // Delete employee
+      await this.employeeRepository.findOneAndDelete({ _id: id });
+
+
+      console.log(`Employee with ID ${id} has been deleted.`);
+
       return { message: 'Employee deleted successfully' };
     } catch (error) {
       if (error instanceof BadRequestException || error instanceof NotFoundException) {
