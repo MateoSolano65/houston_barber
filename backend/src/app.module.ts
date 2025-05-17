@@ -11,6 +11,7 @@ import { ParseMongoIdPipe } from '@common/pipes';
 import { HttpExceptionFilter } from '@common/exceptions';
 
 import { UsersModule } from '@modules/users/users.module';
+import { AuthModule } from '@modules/auth/auth.module';
 import { EmployeesModule } from '@modules/employees/employees.module';
 
 @Module({
@@ -19,6 +20,7 @@ import { EmployeesModule } from '@modules/employees/employees.module';
     MongooseModule.forRootAsync({ useClass: MongooseConfigService }),
     UsersModule,
     EmployeesModule,
+    AuthModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: HttpExceptionFilter },

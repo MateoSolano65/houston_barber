@@ -1,5 +1,7 @@
 import { Request } from 'express';
 
-export const extractUserFromRequest = (request: Request) => {
-  return request.user;
+import { User } from '@modules/users/schemas/user.schema';
+
+export const extractUserFromRequest = (request: Request): User => {
+  return request.user as User;
 };

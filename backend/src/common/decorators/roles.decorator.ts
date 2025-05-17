@@ -1,10 +1,11 @@
 import { CustomDecorator, SetMetadata } from '@nestjs/common';
-import { Role } from '../enums/roles.enum';
+import { UserRoles } from '../enums';
 
 export const ROLES_KEY = 'roles';
-type RolesValues = (keyof typeof Role)[];
+type RolesValues = (keyof typeof UserRoles)[];
 
 export const Roles = (...roles: RolesValues): CustomDecorator<string> =>
-  SetMetadata(ROLES_KEY, [Role.Admin, ...roles]);
+  SetMetadata(ROLES_KEY, [UserRoles.ADMIN, ...roles]);
 
-export const AllRoles = (): CustomDecorator<string> => SetMetadata(ROLES_KEY, Object.values(Role));
+export const AllRoles = (): CustomDecorator<string> =>
+  SetMetadata(ROLES_KEY, Object.values(UserRoles));

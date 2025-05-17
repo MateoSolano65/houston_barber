@@ -78,6 +78,10 @@ export class UsersService {
     return this.userRepository.findOne({ email });
   }
 
+  async getPasswordByEmail(email: string) {
+    return await this.userRepository.findOne({ email }, { password: 1 });
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     try {
       const isValidId = Types.ObjectId.isValid(id);

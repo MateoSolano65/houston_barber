@@ -5,8 +5,8 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 
 import { IS_PUBLIC_KEY, ROLES_KEY } from '../decorators';
 
-import { Role } from '../enums';
 import { extractUserFromRequest } from '../helpers/user-request.helper';
+import { UserRoles } from '../enums';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -19,7 +19,7 @@ export class RolesGuard implements CanActivate {
 
     if (isPublic) return true;
 
-    const roles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+    const roles = this.reflector.getAllAndOverride<UserRoles[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -35,11 +35,11 @@ export class RolesGuard implements CanActivate {
     return true;
   }
 
-  hasValidRoles(validRoles: Role[], userRole: Role): boolean {
+  hasValidRoles(validRoles: UserRoles[], userRole: UserRoles): boolean {
     return validRoles.includes(userRole);
   }
 
-  extractUserRole(request: Request): Role {
+  extractUserRole(request: Request): UserRoles {
     return extractUserFromRequest(request).role;
   }
 }
