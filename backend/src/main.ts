@@ -1,10 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
 import { AppModule } from './app.module';
 
 import { envs } from '@config/envs';
-import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
+
+import { setupSwagger } from './config/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,7 +13,6 @@ async function bootstrap() {
   // Get environment variables
   const port = envs.port;
   const apiPrefix = envs.apiPrefix;
-  const appName = envs.appName;
 
   // Set global prefix
   app.setGlobalPrefix(apiPrefix);
@@ -26,24 +26,7 @@ async function bootstrap() {
     }),
   );
 
-  // Setup Swagger
-  const config = new DocumentBuilder()
-    .setTitle(appName)
-    .setDescription(`${appName} API documentation`)
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-
-  // Aplicar tema oscuro
-  const theme = new SwaggerTheme();
-  const options = {
-    explorer: true,
-    customCss: theme.getBuffer(SwaggerThemeNameEnum.DRACULA),
-  };
-
-  SwaggerModule.setup('docs', app, document, options);
+  setupSwagger(app);
 
   // Enable CORS
   app.enableCors();
