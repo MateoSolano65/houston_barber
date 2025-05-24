@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { JwtService } from '@nestjs/jwt';
@@ -7,6 +9,7 @@ import { UserRoles } from '@common/enums';
 import { UsersService } from '@modules/users/users.service';
 
 import { SignInDto, RegisterDto } from './dto';
+import { NOT_TOKEN } from './constants/auth.constants';
 
 const CREDENTIALS_ERROR = 'Invalid credentials';
 
@@ -39,5 +42,20 @@ export class AuthService {
       ...registerDto,
       role: UserRoles.CLIENT,
     });
+  }
+
+  extractTokenFromRequest(request: Request): string {
+    const authHeader = request.headers.authorization;
+    if (!authHeader) throw new UnauthorizedException(NOT_TOKEN);
+
+    const [type, token] = authHeader.split(' ');
+
+    if (!type || type !== 'Bearer') {
+      throw new UnauthorizedException(NOT_TOKEN);
+    }
+
+    if (!token) throw new UnauthorizedException(NOT_TOKEN);
+
+    return token;
   }
 }
