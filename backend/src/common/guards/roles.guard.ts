@@ -1,7 +1,7 @@
 import { Request } from 'express';
 
 import { Reflector } from '@nestjs/core';
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
 import { IS_PUBLIC_KEY, ROLES_KEY } from '../decorators';
 
@@ -30,7 +30,7 @@ export class RolesGuard implements CanActivate {
     const userRole = this.extractUserRole(request);
     const hasRole = this.hasValidRoles(roles, userRole);
 
-    if (!hasRole) throw new UnauthorizedException();
+    if (!hasRole) return false;
 
     return true;
   }

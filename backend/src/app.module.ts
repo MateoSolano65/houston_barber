@@ -9,11 +9,13 @@ import { MongooseConfigService } from '@config/db';
 import { LoggerMiddleware } from '@common/middlewares';
 import { ParseMongoIdPipe } from '@common/pipes';
 import { HttpExceptionFilter } from '@common/exceptions';
+import { RolesGuard } from '@common/guards/roles.guard';
 
 import { UsersModule } from '@modules/users/users.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { EmployeesModule } from '@modules/employees/employees.module';
-import { AuthGuard } from './modules/auth/guards/auth.guard';
+import { AuthGuard } from '@modules/auth/guards/auth.guard';
+import { CatalogsModule } from '@modules/catalogs/catalogs.module';
 
 @Module({
   imports: [
@@ -22,9 +24,11 @@ import { AuthGuard } from './modules/auth/guards/auth.guard';
     UsersModule,
     EmployeesModule,
     AuthModule,
+    CatalogsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
     { provide: APP_PIPE, useClass: ParseMongoIdPipe },
   ],
